@@ -1,0 +1,13 @@
+{
+  "id": "zip-captions-controller",
+  "name": "Zip Captions Controller",
+  "shortname": "ZipCaptions",
+  "description": "Control Zip Captions in your browser via a Chrome Extension.",
+  "version": "1.0.0",
+  "apiVersion": "2.0.0",
+  "license": "MIT",
+  "manufacturer": "Zip Solutions",
+  "products": ["Zip Captions"],
+  "keywords": ["captions", "accessibility", "zip captions", "text", "browser", "websocket"],
+  "connections": []
+}
