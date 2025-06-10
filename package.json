@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "ws": "^8.x"
+    "ws": "^8.x",
+     "@companion-module/base": "^1.x"
   }
 }

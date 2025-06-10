@@ -6,13 +6,11 @@ class ZipCaptionsController extends InstanceBase {
     super(internal);
     this.wsServer = null; // Our WebSocket server instance
     this.wsClient = null; // The connected client (your Chrome extension)
+    this.pingInterval = null;
 
     this.CHOICES_COMMANDS = [
       { id: 'PLAY_PAUSE', label: 'Play/Pause' },
-      { id: 'INCREASE_TEXT_SIZE', label: 'Increase Text Size' },
-      { id: 'DECREASE_TEXT_SIZE', label: 'Decrease Text Size' },
-      { id: 'TOGGLE_TEXT_FLOW', label: 'Toggle Text Flow' },
-      { id: 'TOGGLE_FULLSCREEN', label: 'Toggle Full Screen' }
+      { id: 'TOGGLE_LISTEN', label: 'Start/Stop' }
     ];
   }
 
@@ -36,6 +34,10 @@ class ZipCaptionsController extends InstanceBase {
     if (this.wsServer) {
       this.wsServer.close();
       this.wsServer = null;
+    }
+    if (this.pingInterval) { 
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
     }
   }
 
@@ -78,10 +80,26 @@ class ZipCaptionsController extends InstanceBase {
       this.wsClient = ws;
       this.updateStatus(InstanceStatus.Ok, 'Connected to Extension');
 
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+    }
+
+    // Start sending ping messages to keep the service worker alive
+    this.pingInterval = setInterval(() => {
+      if (this.wsClient && this.wsClient.readyState === WebSocket.OPEN) {
+        this.wsClient.send('PING'); // Send a simple PING command
+        this.log('debug', 'Sent PING to extension.');
+      }
+    }, 10000); // Send PING every 30 seconds
+
       ws.on('close', (code, reason) => {
         this.log('info', `WebSocket client disconnected. Code: ${code}, Reason: ${reason}`);
         this.wsClient = null;
         this.updateStatus(InstanceStatus.Warning, 'Disconnected from Extension');
+        if (this.pingInterval) {
+         clearInterval(this.pingInterval);
+         this.pingInterval = null;
+        }
       });
 
       ws.on('error', (error) => {
